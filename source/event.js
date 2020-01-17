@@ -1,4 +1,6 @@
 // Search script tags for the script that sets global RottenTomatoes variable.
+// The script currently contains a code comment we're searching based on...
+// Might be smarter to search, instead, for `root.RottenTomatoes`.
 const scripts = document.querySelectorAll("script");
 const initRTScriptElement = [...scripts].find(script => {
   return script.innerHTML.includes("/* -- Data -- */");
@@ -10,35 +12,34 @@ if (initRTScriptElement !== null) {
   //       me access the data. _shrug_
   eval(initRTScriptElement.innerHTML);
 
-  const scoreInfo = this.RottenTomatoes.context.scoreInfo;
+  const {
+    audienceAll,
+    tomatometerAllCritics
+  } = this.RottenTomatoes.context.scoreInfo;
 
-  console.log(scoreInfo);
-
-  // Tomatometer title
+  // Update Tomatometer title
   const tomatometerTitleElement = document.querySelector(
     ".mop-ratings-wrap__info .mop-ratings-wrap__title"
   );
   tomatometerTitleElement.innerHTML = "Critic Average";
 
-  // Tomatometer score
+  // Update Tomatometer score
   const tomatometerScoreElement = document.querySelector(
     ".mop-ratings-wrap__info .mop-ratings-wrap__percentage"
   );
   if (tomatometerScoreElement !== null) {
-    const criticAverageScore = scoreInfo.tomatometerAllCritics.avgScore;
+    const criticAverageScore = tomatometerAllCritics.avgScore;
     tomatometerScoreElement.innerHTML = `${(criticAverageScore * 10)
       .toFixed(1)
       .replace(".0", "")}%`;
   }
 
-  // Tomatometer icon
+  // Update Tomatometer icon
   const tomatometerIconElement = document.querySelector(
     ".mop-ratings-wrap__info .mop-ratings-wrap__icon"
   );
-  if (
-    tomatometerIconElement !== null &&
-    scoreInfo.tomatometerAllCritics.avgScore >= 6
-  ) {
+  // - If the icon exists, update it based on the average score.
+  if (tomatometerIconElement !== null && tomatometerAllCritics.avgScore >= 6) {
     tomatometerIconElement.classList.remove("rotten");
     tomatometerIconElement.classList.add("fresh");
   } else {
@@ -46,30 +47,27 @@ if (initRTScriptElement !== null) {
     tomatometerIconElement.classList.add("rotten");
   }
 
-  // Audience title
+  // Update audience title
   const audienceTitleElement = document.querySelector(".audience-score__title");
   audienceTitleElement.innerHTML = "Audience Average";
 
-  // Audience score
+  // Update audience score
   const audienceScoreElement = document.querySelector(
     ".audience-score .mop-ratings-wrap__percentage"
   );
-
   if (audienceScoreElement !== null) {
-    const audienceAverageScore = scoreInfo.audienceAll.averageRating;
+    const audienceAverageScore = audienceAll.averageRating;
     audienceScoreElement.innerHTML = `${(audienceAverageScore * 20)
       .toFixed(1)
       .replace(".0", "")}%`;
   }
 
-  // Audience icon
+  // Update audience icon
   const audienceIconElement = document.querySelector(
     ".audience-score .mop-ratings-wrap__icon"
   );
-  if (
-    audienceIconElement !== null &&
-    Number(scoreInfo.audienceAll.averageRating) >= 2.5
-  ) {
+  // - If the icon exists, update it based on the average score.
+  if (audienceIconElement !== null && Number(audienceAll.averageRating) >= 3) {
     audienceIconElement.classList.remove("spilled");
     audienceIconElement.classList.add("upright");
   } else {
